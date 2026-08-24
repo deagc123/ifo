@@ -22,21 +22,37 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct ACApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
+    @State private var showSplash = true
+
     var body: some Scene {
         WindowGroup {
-            TabView {
-                DeviceInfoView()
-                    .tabItem { Label("设备", systemImage: "iphone") }
-                SystemInfoView()
-                    .tabItem { Label("系统", systemImage: "gearshape.2") }
-                ScreenHardwareView()
-                    .tabItem { Label("屏幕硬件", systemImage: "display") }
-                SensorView()
-                    .tabItem { Label("传感器", systemImage: "waveform.path.ecg") }
-                BundleInfoView()
-                    .tabItem { Label("当前App", systemImage: "app.badge") }
-                InstalledAppsView()
-                    .tabItem { Label("已安装", systemImage: "square.grid.2x2") }
+            ZStack {
+                if showSplash {
+                    SplashView()
+                        .transition(.opacity)
+                } else {
+                    TabView {
+                        DeviceInfoView()
+                            .tabItem { Label("Device", systemImage: "iphone") }
+                        SystemInfoView()
+                            .tabItem { Label("System", systemImage: "gearshape.2") }
+                        ScreenHardwareView()
+                            .tabItem { Label("Screen & Hardware", systemImage: "display") }
+                        SensorView()
+                            .tabItem { Label("Sensors", systemImage: "waveform.path.ecg") }
+                        BundleInfoView()
+                            .tabItem { Label("Current App", systemImage: "app.badge") }
+                        InstalledAppsView()
+                            .tabItem { Label("Installed", systemImage: "square.grid.2x2") }
+                    }
+                    .transition(.opacity)
+                }
+            }
+            .task {
+                try? await Task.sleep(nanoseconds: 1_200_000_000)
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    showSplash = false
+                }
             }
         }
     }

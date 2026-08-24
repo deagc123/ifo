@@ -12,42 +12,42 @@ struct BundleInfoView: View {
 
     var body: some View {
         List {
-            Section("应用信息") {
-                InfoRow(label: "版本号", value: manager.bundleInfo.version)
+            Section("App Info") {
+                InfoRow(label: "Version", value: manager.bundleInfo.version)
                 InfoRow(label: "Build", value: manager.bundleInfo.build)
                 InfoRow(label: "Bundle ID", value: manager.bundleInfo.bundleIdentifier)
-                InfoRow(label: "显示名", value: manager.bundleInfo.displayName)
-                InfoRow(label: "包名", value: manager.bundleInfo.bundleName)
-                InfoRow(label: "可执行文件", value: manager.bundleInfo.executable)
-                InfoRow(label: "最低系统", value: manager.bundleInfo.minimumOSVersion)
-                InfoRow(label: "编译 SDK", value: manager.bundleInfo.sdkName)
-                InfoRow(label: "启动参数", value: manager.environmentInfo.launchArguments.isEmpty ? "无" : manager.environmentInfo.launchArguments)
+                InfoRow(label: "Display Name", value: manager.bundleInfo.displayName)
+                InfoRow(label: "Bundle Name", value: manager.bundleInfo.bundleName)
+                InfoRow(label: "Executable", value: manager.bundleInfo.executable)
+                InfoRow(label: "Minimum OS", value: manager.bundleInfo.minimumOSVersion)
+                InfoRow(label: "SDK Name", value: manager.bundleInfo.sdkName)
+                InfoRow(label: "Launch Arguments", value: manager.environmentInfo.launchArguments.isEmpty ? String(localized: "None") : manager.environmentInfo.launchArguments)
             }
 
-            Section("运行状态") {
-                InfoRow(label: "应用状态", value: manager.bundleInfo.applicationState)
-                InfoRow(label: "后台剩余时间", value: backgroundTimeText)
-                InfoRow(label: "后台刷新", value: manager.environmentInfo.backgroundRefreshStatus)
-                InfoRow(label: "通知权限", value: manager.notificationAuthStatus)
-                InfoRow(label: "多场景支持", value: manager.environmentInfo.supportsMultipleScenes ? "支持" : "不支持")
-                InfoRow(label: "禁止屏幕休眠", value: manager.environmentInfo.isIdleTimerDisabled ? "是" : "否")
+            Section("Runtime Status") {
+                InfoRow(label: "App State", value: manager.bundleInfo.applicationState)
+                InfoRow(label: "Background Time Left", value: backgroundTimeText)
+                InfoRow(label: "Background Refresh", value: manager.environmentInfo.backgroundRefreshStatus)
+                InfoRow(label: "Notification Permission", value: manager.notificationAuthStatus)
+                InfoRow(label: "Multiple Scenes", value: manager.environmentInfo.supportsMultipleScenes ? String(localized: "Supported") : String(localized: "Not Supported"))
+                InfoRow(label: "Keep Screen Awake", value: manager.environmentInfo.isIdleTimerDisabled ? String(localized: "Yes") : String(localized: "No"))
             }
 
-            Section("广告与推送") {
+            Section("Advertising & Push") {
                 InfoRow(label: "IDFA", value: manager.idfa)
-                InfoRow(label: "追踪授权", value: manager.idfaAuthStatus)
-                InfoRow(label: "推送状态", value: manager.pushStatus)
+                InfoRow(label: "Tracking Authorization", value: manager.idfaAuthStatus)
+                InfoRow(label: "Push Status", value: manager.pushStatus)
                 InfoRow(label: "DeviceToken", value: manager.pushToken)
             }
 
-            Section("沙盒路径") {
+            Section("Sandbox Paths") {
                 InfoRow(label: "Home", value: manager.bundleInfo.homeDirectory)
                 InfoRow(label: "Documents", value: manager.bundleInfo.documentsDirectory)
                 InfoRow(label: "Caches", value: manager.bundleInfo.cachesDirectory)
                 InfoRow(label: "Tmp", value: manager.bundleInfo.tmpDirectory)
             }
         }
-        .navigationTitle("当前 App")
+        .navigationTitle("Current App")
         .listStyle(InsetGroupedListStyle())
         .refreshable { manager.refreshAll() }
     }
@@ -55,9 +55,9 @@ struct BundleInfoView: View {
     private var backgroundTimeText: String {
         let remaining = manager.bundleInfo.backgroundTimeRemaining
         guard remaining.isFinite, remaining >= 0, remaining < Double(Int.max) else {
-            return "前台运行，无限制"
+            return String(localized: "Foreground, unlimited")
         }
-        return "\(Int(remaining)) 秒"
+        return String(localized: "\(Int(remaining)) sec")
     }
 }
 

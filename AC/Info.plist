@@ -16,10 +16,10 @@
 		<string>iosamap</string>
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>用于获取当前连接 WiFi 的名称（SSID）与 BSSID</string>
+	<string>Used to show your device's current location and to obtain the connected WiFi name (SSID) and BSSID.</string>
 	<key>NSMotionUsageDescription</key>
-	<string>用于识别运动状态（步行/跑步/驾车）并采集传感器数据</string>
+	<string>Used to detect motion activity (walking/running/driving) and collect sensor data.</string>
 	<key>NSUserTrackingUsageDescription</key>
-	<string>用于获取广告标识符（IDFA）以演示设备信息采集</string>
+	<string>Used to read the advertising identifier (IDFA) to demonstrate device information collection.</string>
 </dict>
 </plist>

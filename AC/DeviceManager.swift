@@ -50,19 +50,19 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var thermalState = ""
     @Published var lowPowerMode = false
     @Published var currentBrightness: CGFloat = 0
-    @Published var currentConnectionType = "未知"
+    @Published var currentConnectionType = String(localized: "Unknown")
 
     // MARK: - 网络细节（单独 @Published，异步/一次计算）
-    @Published var networkInterfaces = "未知"
-    @Published var dnsServers = "未知"
-    @Published var externalIPAddress = "未知"
+    @Published var networkInterfaces = String(localized: "Unknown")
+    @Published var dnsServers = String(localized: "Unknown")
+    @Published var externalIPAddress = String(localized: "Unknown")
 
     // MARK: - 广告标识与推送（异步）
-    @Published var idfa = "未知"
-    @Published var idfaAuthStatus = "未请求"
-    @Published var pushToken = "未知"
-    @Published var pushStatus = "未注册"
-    @Published var notificationAuthStatus = "未知"
+    @Published var idfa = String(localized: "Unknown")
+    @Published var idfaAuthStatus = String(localized: "Not Requested")
+    @Published var pushToken = String(localized: "Unknown")
+    @Published var pushStatus = String(localized: "Not Registered")
+    @Published var notificationAuthStatus = String(localized: "Unknown")
 
     // MARK: - 全局状态
     @Published var isLoading = false
@@ -84,16 +84,16 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
 
     // MARK: - scheme 目录（需与 Info.plist 的 LSApplicationQueriesSchemes 一致）
     private static let schemeCatalog: [(name: String, scheme: String, icon: String)] = [
-        ("微信", "weixin", "message.fill"),
+        (String(localized: "WeChat"), "weixin", "message.fill"),
         ("QQ", "mqq", "bubble.left.and.bubble.right.fill"),
-        ("支付宝", "alipay", "creditcard.fill"),
-        ("淘宝", "taobao", "bag.fill"),
-        ("京东", "openapp.jdmobile", "cart.fill"),
-        ("抖音", "snssdk1128", "play.rectangle.fill"),
-        ("微博", "sinaweibo", "at"),
-        ("哔哩哔哩", "bilibili", "tv.fill"),
-        ("美团", "imeituan", "fork.knife"),
-        ("高德地图", "iosamap", "map.fill"),
+        (String(localized: "Alipay"), "alipay", "creditcard.fill"),
+        (String(localized: "Taobao"), "taobao", "bag.fill"),
+        (String(localized: "JD.com"), "openapp.jdmobile", "cart.fill"),
+        (String(localized: "Douyin"), "snssdk1128", "play.rectangle.fill"),
+        (String(localized: "Weibo"), "sinaweibo", "at"),
+        (String(localized: "Bilibili"), "bilibili", "tv.fill"),
+        (String(localized: "Meituan"), "imeituan", "fork.knife"),
+        (String(localized: "AMap"), "iosamap", "map.fill"),
     ]
 
     override init() {
@@ -139,7 +139,7 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             localizedModel: device.localizedModel,
             systemName: device.systemName,
             systemVersion: device.systemVersion,
-            identifierForVendor: device.identifierForVendor?.uuidString ?? "无",
+            identifierForVendor: device.identifierForVendor?.uuidString ?? "None",
             idiom: idiomString(device.userInterfaceIdiom),
             hardwareModel: DeviceManager.sysctlString("hw.machine"),
             screenSize: "\(Int(screen.bounds.width)) x \(Int(screen.bounds.height))",
@@ -165,7 +165,7 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             processorCount: p.processorCount,
             activeProcessorCount: p.activeProcessorCount,
             hostName: p.hostName,
-            cpuBrandString: DeviceManager.sysctlString("machdep.cpu.brand_string"),
+            cpuBrandString: Self.cpuBrand(),
             kernOSVersion: DeviceManager.sysctlString("kern.osversion"),
             bootTime: bootTime,
             preferredLanguages: NSLocale.preferredLanguages,
@@ -182,7 +182,7 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             osProductVersion: DeviceManager.sysctlString("kern.osproductversion"),
             osProductBuild: DeviceManager.sysctlString("kern.osproductbuild"),
             isSimulator: Self.isSimulator,
-            simulatorDeviceName: p.environment["SIMULATOR_DEVICE_NAME"] ?? "非模拟器",
+            simulatorDeviceName: p.environment["SIMULATOR_DEVICE_NAME"] ?? String(localized: "Not Simulator"),
             cpuUsage: DeviceManager.cpuUsage(),
             processResidentMemory: taskMemory.resident,
             processVirtualMemory: taskMemory.virtual,
@@ -223,6 +223,7 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         }
         hardwareInfo = HardwareInfo(
             deviceName: DeviceManager.friendlyDeviceName(identifier),
+            screenDiagonal: Self.screenDiagonal(identifier) ?? "",
             pageSize: Int(DeviceManager.sysctlInt32("hw.pagesize")),
             physicalCPU: Int(DeviceManager.sysctlInt32("hw.physicalcpu")),
             logicalCPU: Int(DeviceManager.sysctlInt32("hw.logicalcpu")),
@@ -233,7 +234,7 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             cpuStepping: DeviceManager.sysctlString("machdep.cpu.stepping"),
             cpuFreqMax: DeviceManager.sysctlUInt64("kern.cpufrequency_max"),
             cpuFreqMin: DeviceManager.sysctlUInt64("kern.cpufrequency_min"),
-            gpuName: metalDevice?.name ?? "无",
+            gpuName: metalDevice?.name ?? "None",
             gpuWorkingSet: metalDevice?.recommendedMaxWorkingSetSize ?? 0,
             gpuMaxThreadsPerGroup: Int(metalDevice?.maxThreadsPerThreadgroup.width ?? 0),
             maxRefreshRate: Int(UIScreen.main.maximumFramesPerSecond),
@@ -258,7 +259,7 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             }
         }
         guard result == KERN_SUCCESS else {
-            errors.append("获取内存信息失败")
+            errors.append(String(localized: "Failed to read memory info"))
             return
         }
         let pageSize = UInt64(vm_page_size)
@@ -286,7 +287,7 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
                 availableForOpportunistic: Int64(values.volumeAvailableCapacityForOpportunisticUsage ?? 0)
             )
         } catch {
-            errors.append("获取磁盘信息失败: \(error.localizedDescription)")
+            errors.append(String(localized: "Failed to read disk info: \(error.localizedDescription)"))
         }
     }
 
@@ -299,24 +300,24 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
 
     private func updateNetworkInfo(_ path: Network.NWPath) {
-        var connectionType = "未知"
+        var connectionType = String(localized: "Unknown")
         switch path.status {
         case .satisfied:
             if path.usesInterfaceType(.wifi) {
                 connectionType = "WiFi"
             } else if path.usesInterfaceType(.cellular) {
-                connectionType = "蜂窝网络"
+                connectionType = String(localized: "Cellular")
             } else if path.usesInterfaceType(.wiredEthernet) {
-                connectionType = "有线网络"
+                connectionType = String(localized: "Wired")
             } else {
-                connectionType = "其他网络"
+                connectionType = String(localized: "Other")
             }
         case .unsatisfied:
-            connectionType = "无网络"
+            connectionType = String(localized: "No Network")
         case .requiresConnection:
-            connectionType = "需建立连接"
+            connectionType = String(localized: "Requires Connection")
         @unknown default:
-            connectionType = "未知"
+            connectionType = String(localized: "Unknown")
         }
         networkInfo = NetworkInfo(
             connectionType: connectionType,
@@ -350,7 +351,7 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
 
     private func fetchExternalIP(from endpoints: [String]) {
         guard let first = endpoints.first else {
-            externalIPAddress = "获取失败（所有源均不可达）"
+            externalIPAddress = String(localized: "Failed (all sources unreachable)")
             return
         }
         guard let url = URL(string: first) else {
@@ -385,7 +386,7 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     private func refreshWiFiInfo() {
         let status = locationManager.authorizationStatus
         guard status == .authorizedWhenInUse || status == .authorizedAlways else {
-            applySSID("未获取（需授权定位）", bssid: "")
+            applySSID(String(localized: "Not available (location permission required)"), bssid: "")
             return
         }
         NEHotspotNetwork.fetchCurrent { [weak self] network in
@@ -394,7 +395,7 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
                 if let network = network, !network.ssid.isEmpty {
                     self.applySSID(network.ssid, bssid: network.bssid)
                 } else {
-                    self.applySSID("未获取（未连接WiFi或受限）", bssid: "")
+                    self.applySSID(String(localized: "Not available (no WiFi or restricted)"), bssid: "")
                 }
             }
         }
@@ -419,9 +420,9 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             traits = window.traitCollection
         }
 
-        var displayGamut = "其他"
+        var displayGamut = String(localized: "Other")
         if traits.displayGamut == .P3 {
-            displayGamut = "P3 广色域"
+            displayGamut = String(localized: "P3 Wide Color")
         }
 
         let session = AVAudioSession.sharedInstance()
@@ -444,15 +445,15 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             horizontalSizeClass: sizeClassString(traits.horizontalSizeClass),
             verticalSizeClass: sizeClassString(traits.verticalSizeClass),
             contentSizeCategory: traits.preferredContentSizeCategory.rawValue,
-            accessibilityContrast: traits.accessibilityContrast == .high ? "高对比度" : "标准",
+            accessibilityContrast: traits.accessibilityContrast == .high ? String(localized: "High Contrast") : String(localized: "Standard"),
             audioRoute: route,
             outputVolume: session.outputVolume,
             audioSampleRate: session.sampleRate,
             calendarIdentifier: calendarIdentifier,
             firstWeekday: weekday,
             usesMetricSystem: UserDefaults.standard.bool(forKey: "AppleMetricUnits"),
-            temperatureUnit: UserDefaults.standard.string(forKey: "AppleTemperatureUnit") ?? "未知",
-            timeZoneAbbreviation: TimeZone.current.abbreviation() ?? "未知",
+            temperatureUnit: UserDefaults.standard.string(forKey: "AppleTemperatureUnit") ?? String(localized: "Unknown"),
+            timeZoneAbbreviation: TimeZone.current.abbreviation() ?? String(localized: "Unknown"),
             backgroundRefreshStatus: backgroundRefreshString(UIApplication.shared.backgroundRefreshStatus),
             supportsMultipleScenes: UIApplication.shared.supportsMultipleScenes,
             isIdleTimerDisabled: UIApplication.shared.isIdleTimerDisabled,
@@ -464,8 +465,8 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             microphoneCount: audioInputs.count,
             inputChannelCount: Int(session.maximumInputNumberOfChannels),
             microphoneAuthStatus: mediaAuthString(AVCaptureDevice.authorizationStatus(for: .audio)),
-            keyboards: keyboards.isEmpty ? "无" : keyboards.joined(separator: "、"),
-            timeZoneLocalizedName: TimeZone.current.localizedName(for: .shortGeneric, locale: .current) ?? "未知",
+            keyboards: keyboards.isEmpty ? String(localized: "None") : keyboards.joined(separator: ", "),
+            timeZoneLocalizedName: TimeZone.current.localizedName(for: .shortGeneric, locale: .current) ?? String(localized: "Unknown"),
             nextDSTTransitionText: nextDSTString(),
             decimalSeparator: Locale.current.decimalSeparator ?? ".",
             groupingSeparator: Locale.current.groupingSeparator ?? ",",
@@ -483,7 +484,7 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         var iso = ""
         if let providers = ct.serviceSubscriberCellularProviders,
            let first = providers.values.first {
-            name = first.carrierName ?? "未知"
+            name = first.carrierName ?? String(localized: "Unknown")
             mcc = first.mobileCountryCode ?? ""
             mnc = first.mobileNetworkCode ?? ""
             iso = first.isoCountryCode ?? ""
@@ -538,7 +539,7 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         guard let url = URL(string: app.urlString) else { return }
         UIApplication.shared.open(url, options: [:]) { success in
             if !success {
-                print("打开失败: \(app.scheme)")
+                print("Failed to open: \(app.scheme)")
             }
         }
     }
@@ -677,7 +678,7 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        errors.append("定位失败: \(error.localizedDescription)")
+        errors.append(String(localized: "Location failed: \(error.localizedDescription)"))
     }
 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
@@ -715,15 +716,15 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             userAccelerationText: vectorText(motion?.userAcceleration.x, motion?.userAcceleration.y, motion?.userAcceleration.z),
             rotationRateText: vectorText(motion?.rotationRate.x, motion?.rotationRate.y, motion?.rotationRate.z),
             attitudeText: attitudeText(motion?.attitude),
-            relativeAltitudeText: baro.map { String(format: "%.2f m", $0.relativeAltitude.doubleValue) } ?? "未获取",
-            pressureText: baro.map { String(format: "%.2f kPa", $0.pressure.doubleValue) } ?? "未获取",
+            relativeAltitudeText: baro.map { String(format: "%.2f m", $0.relativeAltitude.doubleValue) } ?? String(localized: "Unavailable"),
+            pressureText: baro.map { String(format: "%.2f kPa", $0.pressure.doubleValue) } ?? String(localized: "Unavailable"),
             motionActivityText: motionActivityText(activity),
-            latitudeText: location.map { String(format: "%.6f", $0.coordinate.latitude) } ?? "未获取",
-            longitudeText: location.map { String(format: "%.6f", $0.coordinate.longitude) } ?? "未获取",
-            altitudeText: location.map { String(format: "%.1f m", $0.altitude) } ?? "未获取",
-            courseText: location.map { String(format: "%.0f°", $0.course) } ?? "未获取",
-            speedText: location.map { String(format: "%.1f m/s", $0.speed) } ?? "未获取",
-            horizontalAccuracyText: location.map { String(format: "±%.0f m", $0.horizontalAccuracy) } ?? "未获取",
+            latitudeText: location.map { String(format: "%.6f", $0.coordinate.latitude) } ?? String(localized: "Unavailable"),
+            longitudeText: location.map { String(format: "%.6f", $0.coordinate.longitude) } ?? String(localized: "Unavailable"),
+            altitudeText: location.map { String(format: "%.1f m", $0.altitude) } ?? String(localized: "Unavailable"),
+            courseText: location.map { String(format: "%.0f°", $0.course) } ?? String(localized: "Unavailable"),
+            speedText: location.map { String(format: "%.1f m/s", $0.speed) } ?? String(localized: "Unavailable"),
+            horizontalAccuracyText: location.map { String(format: "±%.0f m", $0.horizontalAccuracy) } ?? String(localized: "Unavailable"),
             locationAuthStatus: locationAuthString(status),
             accuracyAuthorizationText: accuracyAuthString(locationManager.accuracyAuthorization)
         )
@@ -750,12 +751,12 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     // MARK: - 推送令牌（由 AppDelegate 回调）
     func updatePushToken(_ token: Data) {
         pushToken = token.map { String(format: "%02x", $0) }.joined()
-        pushStatus = "已注册"
+        pushStatus = String(localized: "Registered")
     }
 
     func updatePushError(_ error: Error) {
-        pushStatus = "注册失败（\(error.localizedDescription)）"
-        pushToken = "无"
+        pushStatus = String(localized: "Registration failed (\(error.localizedDescription))")
+        pushToken = "None"
     }
 
     private func updateDynamicInfo() {
@@ -863,7 +864,7 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     // 本机 IPv4 地址（en0 WiFi / pdp_ip0 蜂窝）
     static func localIPAddress() -> String {
         var ifaddr: UnsafeMutablePointer<ifaddrs>?
-        guard getifaddrs(&ifaddr) == 0 else { return "未知" }
+        guard getifaddrs(&ifaddr) == 0 else { return String(localized: "Unknown") }
         defer { freeifaddrs(ifaddr) }
 
         var ptr = ifaddr
@@ -889,14 +890,14 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             }
             ptr = p.pointee.ifa_next
         }
-        return "未知"
+        return String(localized: "Unknown")
     }
 
     // 全部 IPv4 接口（含 lo0）
     static func interfaceList() -> String {
         var lines: [String] = []
         var ifaddr: UnsafeMutablePointer<ifaddrs>?
-        guard getifaddrs(&ifaddr) == 0 else { return "未知" }
+        guard getifaddrs(&ifaddr) == 0 else { return String(localized: "Unknown") }
         defer { freeifaddrs(ifaddr) }
 
         var ptr = ifaddr
@@ -920,7 +921,7 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             }
             ptr = p.pointee.ifa_next
         }
-        return lines.isEmpty ? "无" : lines.joined(separator: "\n")
+        return lines.isEmpty ? String(localized: "None") : lines.joined(separator: "\n")
     }
 
     // DNS 服务器（libresolv，经 BridgingHeader 暴露；Apple 平台符号带 res_9_ 前缀）
@@ -929,7 +930,7 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         memset(state, 0, MemoryLayout<res_9_state.Pointee>.size)
         guard res_9_ninit(state) == 0 else {
             state.deallocate()
-            return "未知"
+            return String(localized: "Unknown")
         }
         defer {
             res_9_nclose(state)
@@ -940,7 +941,7 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         let count = servers.withUnsafeMutableBufferPointer { buffer -> Int32 in
             res_9_getservers(state, buffer.baseAddress, Int32(buffer.count))
         }
-        guard count > 0 else { return "无" }
+        guard count > 0 else { return String(localized: "None") }
 
         var result: [String] = []
         for index in 0..<Int(count) {
@@ -950,7 +951,7 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
                 result.append(String(cString: address))
             }
         }
-        return result.isEmpty ? "无" : result.joined(separator: ", ")
+        return result.isEmpty ? String(localized: "None") : result.joined(separator: ", ")
     }
 
     // 越狱检测（文件标记法）
@@ -984,42 +985,106 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             "iPhone11,2": "iPhone XS", "iPhone11,4": "iPhone XS Max", "iPhone11,6": "iPhone XS Max",
             "iPhone11,8": "iPhone XR",
             "iPhone12,1": "iPhone 11", "iPhone12,3": "iPhone 11 Pro", "iPhone12,5": "iPhone 11 Pro Max",
-            "iPhone12,8": "iPhone SE (2代)",
+            "iPhone12,8": "iPhone SE (2nd gen)",
             "iPhone13,1": "iPhone 12 mini", "iPhone13,2": "iPhone 12",
             "iPhone13,3": "iPhone 12 Pro", "iPhone13,4": "iPhone 12 Pro Max",
             "iPhone14,2": "iPhone 13 Pro", "iPhone14,3": "iPhone 13 Pro Max",
             "iPhone14,4": "iPhone 13 mini", "iPhone14,5": "iPhone 13",
+            "iPhone14,6": "iPhone SE (3rd gen)",
             "iPhone14,7": "iPhone 14", "iPhone14,8": "iPhone 14 Plus",
             "iPhone15,2": "iPhone 14 Pro", "iPhone15,3": "iPhone 14 Pro Max",
             "iPhone15,4": "iPhone 15", "iPhone15,5": "iPhone 15 Plus",
             "iPhone16,1": "iPhone 15 Pro", "iPhone16,2": "iPhone 15 Pro Max",
             "iPhone17,1": "iPhone 16 Pro", "iPhone17,2": "iPhone 16 Pro Max",
             "iPhone17,3": "iPhone 16", "iPhone17,4": "iPhone 16 Plus", "iPhone17,5": "iPhone 16e",
-            "iPhone18,1": "iPhone 17", "iPhone18,2": "iPhone 17 Pro",
-            "iPhone18,3": "iPhone 17 Pro Max", "iPhone18,4": "iPhone 17 Air",
-            "iPad8,1": "iPad Pro 11\" (2代)", "iPad8,9": "iPad Pro 11\" (3代)",
-            "iPad11,1": "iPad mini (5代)", "iPad11,3": "iPad Air (3代)",
-            "iPad13,1": "iPad Air (4代)", "iPad13,4": "iPad Pro 11\" (3代)",
-            "iPad13,8": "iPad Pro 12.9\" (5代)", "iPad13,16": "iPad Pro 11\" (4代)",
-            "iPad13,18": "iPad Pro 12.9\" (6代)", "iPad14,1": "iPad mini (6代)",
-            "iPad14,8": "iPad Pro 11\" (M4)", "iPad14,10": "iPad Pro 13\" (M4)",
-            "iPad15,3": "iPad Air 11\" (M2)", "iPad15,8": "iPad Pro 11\" (M4)",
+            "iPhone18,1": "iPhone 17 Pro", "iPhone18,2": "iPhone 17 Pro Max",
+            "iPhone18,3": "iPhone 17", "iPhone18,4": "iPhone 17 Air", "iPhone18,5": "iPhone 17e",
+            "iPad5,1": "iPad mini 4", "iPad5,4": "iPad Air 2",
+            "iPad6,4": "iPad Pro 9.7\"", "iPad6,8": "iPad Pro 12.9\" (1st gen)",
+            "iPad6,12": "iPad (5th gen)",
+            "iPad7,1": "iPad Pro 12.9\" (2nd gen)", "iPad7,3": "iPad Pro 10.5\"",
+            "iPad7,6": "iPad (6th gen)", "iPad7,12": "iPad (7th gen)",
+            "iPad8,1": "iPad Pro 11\" (1st gen)", "iPad8,5": "iPad Pro 12.9\" (3rd gen)",
+            "iPad8,9": "iPad Pro 11\" (2nd gen)", "iPad8,12": "iPad Pro 12.9\" (4th gen)",
+            "iPad11,1": "iPad mini (5th gen)", "iPad11,3": "iPad Air (3rd gen)",
+            "iPad11,6": "iPad (8th gen)", "iPad11,7": "iPad (8th gen)",
+            "iPad12,2": "iPad (9th gen)",
+            "iPad13,1": "iPad Air (4th gen)", "iPad13,2": "iPad Air (4th gen)",
+            "iPad13,4": "iPad Pro 11\" (3rd gen)", "iPad13,5": "iPad Pro 11\" (3rd gen)",
+            "iPad13,8": "iPad Pro 12.9\" (5th gen)", "iPad13,10": "iPad Pro 12.9\" (5th gen)",
+            "iPad13,16": "iPad Air (5th gen)", "iPad13,17": "iPad Air (5th gen)",
+            "iPad13,18": "iPad (10th gen)",
+            "iPad14,1": "iPad mini (6th gen)", "iPad14,2": "iPad mini (6th gen)",
+            "iPad14,3": "iPad Pro 11\" (4th gen)", "iPad14,4": "iPad Pro 11\" (4th gen)",
+            "iPad14,5": "iPad Pro 12.9\" (6th gen)",
+            "iPad14,8": "iPad Air 11\" (M2)", "iPad14,9": "iPad Air 11\" (M2)",
+            "iPad14,10": "iPad Air 13\" (M2)", "iPad14,11": "iPad Air 13\" (M2)",
+            "iPad15,3": "iPad Air 11\" (M3)", "iPad15,4": "iPad Air 11\" (M3)",
+            "iPad15,5": "iPad Air 13\" (M3)", "iPad15,6": "iPad Air 13\" (M3)",
+            "iPad15,7": "iPad (A16)",
+            "iPad16,2": "iPad mini (A17 Pro)",
+            "iPad16,4": "iPad Pro 11\" (M4)", "iPad16,6": "iPad Pro 13\" (M4)",
+            "iPad16,9": "iPad Air 11\" (M4)", "iPad16,11": "iPad Air 13\" (M4)",
+            "iPad17,2": "iPad Pro 11\" (M5)", "iPad17,4": "iPad Pro 13\" (M5)",
         ]
         return map[identifier] ?? identifier
+    }
+
+    // CPU 品牌：machdep.cpu.brand_string 仅 Intel 平台有值，Apple 芯片返回空
+    static func cpuBrand() -> String {
+        let brand = sysctlString("machdep.cpu.brand_string")
+        return brand.isEmpty ? "Apple Silicon" : brand
+    }
+
+    // 屏幕对角线（英寸）：系统不暴露物理尺寸，只能按机型查表
+    static func screenDiagonal(_ identifier: String) -> String? {
+        let map: [String: String] = [
+            "iPhone8,1": "4.7\"", "iPhone8,2": "5.5\"", "iPhone8,4": "4.0\"",
+            "iPhone9,1": "4.7\"", "iPhone9,2": "5.5\"", "iPhone9,3": "4.7\"", "iPhone9,4": "5.5\"",
+            "iPhone10,1": "4.7\"", "iPhone10,2": "5.5\"", "iPhone10,3": "5.8\"",
+            "iPhone10,4": "4.7\"", "iPhone10,5": "5.5\"", "iPhone10,6": "5.8\"",
+            "iPhone11,2": "5.8\"", "iPhone11,4": "6.5\"", "iPhone11,6": "6.5\"", "iPhone11,8": "6.1\"",
+            "iPhone12,1": "6.1\"", "iPhone12,3": "5.8\"", "iPhone12,5": "6.5\"", "iPhone12,8": "4.7\"",
+            "iPhone13,1": "5.4\"", "iPhone13,2": "6.1\"", "iPhone13,3": "6.1\"", "iPhone13,4": "6.7\"",
+            "iPhone14,2": "6.1\"", "iPhone14,3": "6.7\"", "iPhone14,4": "5.4\"", "iPhone14,5": "6.1\"",
+            "iPhone14,6": "4.7\"", "iPhone14,7": "6.1\"", "iPhone14,8": "6.7\"",
+            "iPhone15,2": "6.1\"", "iPhone15,3": "6.7\"", "iPhone15,4": "6.1\"", "iPhone15,5": "6.7\"",
+            "iPhone16,1": "6.1\"", "iPhone16,2": "6.7\"",
+            "iPhone17,1": "6.3\"", "iPhone17,2": "6.9\"", "iPhone17,3": "6.1\"", "iPhone17,4": "6.7\"", "iPhone17,5": "6.1\"",
+            "iPhone18,1": "6.3\"", "iPhone18,2": "6.9\"", "iPhone18,3": "6.3\"", "iPhone18,4": "6.5\"", "iPhone18,5": "6.1\"",
+            "iPad5,1": "7.9\"", "iPad5,4": "9.7\"",
+            "iPad6,4": "9.7\"", "iPad6,8": "12.9\"", "iPad6,12": "9.7\"",
+            "iPad7,1": "12.9\"", "iPad7,3": "10.5\"", "iPad7,6": "9.7\"", "iPad7,12": "10.2\"",
+            "iPad8,1": "11\"", "iPad8,5": "12.9\"", "iPad8,9": "11\"", "iPad8,12": "12.9\"",
+            "iPad11,1": "7.9\"", "iPad11,3": "10.5\"", "iPad11,6": "10.2\"", "iPad11,7": "10.2\"",
+            "iPad12,2": "10.2\"",
+            "iPad13,1": "10.9\"", "iPad13,2": "10.9\"",
+            "iPad13,4": "11\"", "iPad13,5": "11\"",
+            "iPad13,8": "12.9\"", "iPad13,10": "12.9\"",
+            "iPad13,16": "10.9\"", "iPad13,17": "10.9\"", "iPad13,18": "10.9\"",
+            "iPad14,1": "8.3\"", "iPad14,2": "8.3\"",
+            "iPad14,3": "11\"", "iPad14,4": "11\"", "iPad14,5": "12.9\"",
+            "iPad14,8": "11\"", "iPad14,9": "11\"", "iPad14,10": "13\"", "iPad14,11": "13\"",
+            "iPad15,3": "11\"", "iPad15,4": "11\"", "iPad15,5": "13\"", "iPad15,6": "13\"",
+            "iPad16,2": "8.3\"", "iPad16,4": "11\"", "iPad16,6": "13\"",
+            "iPad16,9": "11\"", "iPad16,11": "13\"",
+            "iPad17,2": "11\"", "iPad17,4": "13\"",
+        ]
+        return map[identifier]
     }
 
     // 生物识别能力（Face ID / Touch ID / Optic ID）
     static func biometricString() -> String {
         let context = LAContext()
         guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil) else {
-            return "不可用"
+            return String(localized: "Unavailable")
         }
         switch context.biometryType {
         case .faceID: return "Face ID"
         case .touchID: return "Touch ID"
         case .opticID: return "Optic ID"
-        case .none: return "无"
-        @unknown default: return "未知"
+        case .none: return String(localized: "None")
+        @unknown default: return String(localized: "Unknown")
         }
     }
 
@@ -1048,12 +1113,12 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
 
     static func notificationStatusString(_ status: UNAuthorizationStatus) -> String {
         switch status {
-        case .notDetermined: return "未决定"
-        case .denied: return "已拒绝"
-        case .authorized: return "已授权"
-        case .provisional: return "临时授权"
-        case .ephemeral: return "短暂授权"
-        @unknown default: return "未知"
+        case .notDetermined: return String(localized: "Not Determined")
+        case .denied: return String(localized: "Denied")
+        case .authorized: return String(localized: "Authorized")
+        case .provisional: return String(localized: "Provisional")
+        case .ephemeral: return String(localized: "Ephemeral")
+        @unknown default: return String(localized: "Unknown")
         }
     }
 
@@ -1076,94 +1141,94 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         case .tv: return "Apple TV"
         case .carPlay: return "CarPlay"
         case .vision: return "Vision Pro"
-        default: return "未知"
+        default: return String(localized: "Unknown")
         }
     }
 
     private func sizeClassString(_ sizeClass: UIUserInterfaceSizeClass) -> String {
         switch sizeClass {
-        case .compact: return "紧凑 (compact)"
-        case .regular: return "常规 (regular)"
-        case .unspecified: return "未指定"
-        @unknown default: return "未知"
+        case .compact: return String(localized: "Compact")
+        case .regular: return String(localized: "Regular")
+        case .unspecified: return String(localized: "Unspecified")
+        @unknown default: return String(localized: "Unknown")
         }
     }
 
     private func backgroundRefreshString(_ status: UIBackgroundRefreshStatus) -> String {
         switch status {
-        case .available: return "已启用"
-        case .denied: return "已禁用"
-        case .restricted: return "受限"
-        @unknown default: return "未知"
+        case .available: return String(localized: "Available")
+        case .denied: return String(localized: "Denied")
+        case .restricted: return String(localized: "Restricted")
+        @unknown default: return String(localized: "Unknown")
         }
     }
 
     private func calendarString(_ identifier: Calendar.Identifier) -> String {
         switch identifier {
-        case .gregorian: return "公历 (gregorian)"
-        case .chinese: return "中国农历"
+        case .gregorian: return String(localized: "Gregorian")
+        case .chinese: return String(localized: "Chinese")
         case .iso8601: return "ISO 8601"
-        case .japanese: return "日本和历"
-        case .buddhist: return "佛历"
-        case .islamic: return "伊斯兰历"
-        case .islamicCivil: return "伊斯兰民用历"
-        case .hebrew: return "希伯来历"
-        case .coptic: return "科普特历"
-        case .ethiopicAmeteMihret: return "埃塞俄比亚历 (AmeteMihret)"
-        case .ethiopicAmeteAlem: return "埃塞俄比亚历 (AmeteAlem)"
-        case .indian: return "印度历"
-        case .persian: return "波斯历"
-        case .republicOfChina: return "中华民国历"
-        case .islamicTabular: return "伊斯兰表格历"
-        case .islamicUmmAlQura: return "伊斯兰乌姆库拉历"
-        @unknown default: return "未知"
+        case .japanese: return String(localized: "Japanese")
+        case .buddhist: return String(localized: "Buddhist")
+        case .islamic: return String(localized: "Islamic")
+        case .islamicCivil: return String(localized: "Islamic Civil")
+        case .hebrew: return String(localized: "Hebrew")
+        case .coptic: return String(localized: "Coptic")
+        case .ethiopicAmeteMihret: return String(localized: "Ethiopian (AmeteMihret)")
+        case .ethiopicAmeteAlem: return String(localized: "Ethiopian (AmeteAlem)")
+        case .indian: return String(localized: "Indian")
+        case .persian: return String(localized: "Persian")
+        case .republicOfChina: return String(localized: "Republic of China")
+        case .islamicTabular: return String(localized: "Islamic Tabular")
+        case .islamicUmmAlQura: return String(localized: "Islamic Umm al-Qura")
+        @unknown default: return String(localized: "Unknown")
         }
     }
 
     private func orientationString(_ orientation: UIDeviceOrientation) -> String {
         switch orientation {
-        case .unknown: return "未知"
-        case .portrait: return "竖屏（正面）"
-        case .portraitUpsideDown: return "竖屏（倒置）"
-        case .landscapeLeft: return "横屏（向左）"
-        case .landscapeRight: return "横屏（向右）"
-        case .faceUp: return "屏幕朝上"
-        case .faceDown: return "屏幕朝下"
-        @unknown default: return "未知"
+        case .unknown: return String(localized: "Unknown")
+        case .portrait: return String(localized: "Portrait (Upright)")
+        case .portraitUpsideDown: return String(localized: "Portrait (Upside Down)")
+        case .landscapeLeft: return String(localized: "Landscape (Left)")
+        case .landscapeRight: return String(localized: "Landscape (Right)")
+        case .faceUp: return String(localized: "Face Up")
+        case .faceDown: return String(localized: "Face Down")
+        @unknown default: return String(localized: "Unknown")
         }
     }
 
     private func batteryStateString(_ state: UIDevice.BatteryState) -> String {
         switch state {
-        case .unknown: return "未知"
-        case .unplugged: return "未充电"
-        case .charging: return "充电中"
-        case .full: return "已充满"
-        @unknown default: return "未知"
+        case .unknown: return String(localized: "Unknown")
+        case .unplugged: return String(localized: "Unplugged")
+        case .charging: return String(localized: "Charging")
+        case .full: return String(localized: "Full")
+        @unknown default: return String(localized: "Unknown")
         }
     }
 
     private func thermalString(_ state: ProcessInfo.ThermalState) -> String {
         switch state {
-        case .nominal: return "正常"
-        case .fair: return "略热"
-        case .serious: return "过热"
-        case .critical: return "严重过热"
-        @unknown default: return "未知"
+        case .nominal: return String(localized: "Normal")
+        case .fair: return String(localized: "Fair")
+        case .serious: return String(localized: "Serious")
+        case .critical: return String(localized: "Critical")
+        @unknown default: return String(localized: "Unknown")
         }
     }
 
     private func appStateString(_ state: UIApplication.State) -> String {
         switch state {
-        case .active: return "前台活跃"
-        case .inactive: return "前台非活跃"
-        case .background: return "后台"
-        @unknown default: return "未知"
+        case .active: return String(localized: "Active")
+        case .inactive: return String(localized: "Inactive")
+        case .background: return String(localized: "Background")
+        @unknown default: return String(localized: "Unknown")
         }
     }
 
     private func radioTechString(_ tech: String?) -> String {
-        guard let tech = tech else { return "未知" }
+        guard let tech = tech else { return String(localized: "Unknown") }
         switch tech {
         case CTRadioAccessTechnologyGPRS, CTRadioAccessTechnologyEdge, CTRadioAccessTechnologyCDMA1x:
             return "2G"
@@ -1181,65 +1246,69 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
 
     private func vectorText(_ x: Double?, _ y: Double?, _ z: Double?) -> String {
-        guard let x = x, let y = y, let z = z else { return "未获取" }
+        guard let x = x, let y = y, let z = z else { return String(localized: "Unavailable") }
         return String(format: "x: %.2f  y: %.2f  z: %.2f", x, y, z)
     }
 
     private func attitudeText(_ attitude: CMAttitude?) -> String {
-        guard let attitude = attitude else { return "未获取" }
+        guard let attitude = attitude else { return String(localized: "Unavailable") }
         let toDegrees = 180.0 / Double.pi
         return String(format: "pitch: %.1f°  roll: %.1f°  yaw: %.1f°",
                       attitude.pitch * toDegrees, attitude.roll * toDegrees, attitude.yaw * toDegrees)
     }
 
     private func motionActivityText(_ activity: CMMotionActivity?) -> String {
-        guard let activity = activity else { return "未获取（需运动与健身权限）" }
+        guard let activity = activity else { return String(localized: "Unavailable (Motion & Fitness permission needed)") }
         var labels: [String] = []
-        if activity.stationary { labels.append("静止") }
-        if activity.walking { labels.append("步行") }
-        if activity.running { labels.append("跑步") }
-        if activity.automotive { labels.append("驾车") }
-        if activity.cycling { labels.append("骑行") }
-        if activity.unknown { labels.append("未知") }
+        if activity.stationary { labels.append(String(localized: "Stationary")) }
+        if activity.walking { labels.append(String(localized: "Walking")) }
+        if activity.running { labels.append(String(localized: "Running")) }
+        if activity.automotive { labels.append(String(localized: "Driving")) }
+        if activity.cycling { labels.append(String(localized: "Cycling")) }
+        if activity.unknown { labels.append(String(localized: "Unknown")) }
         let confidence = activity.confidence
-        let confidenceLabel = confidence == .high ? "高" : (confidence == .medium ? "中" : "低")
-        return labels.isEmpty ? "未知" : "\(labels.joined(separator: " / "))（置信度\(confidenceLabel)）"
+        let confidenceLabel = confidence == .high
+            ? String(localized: "High")
+            : (confidence == .medium ? String(localized: "Medium") : String(localized: "Low"))
+        return labels.isEmpty
+            ? String(localized: "Unknown")
+            : String(localized: "\(labels.joined(separator: " / ")) (confidence: \(confidenceLabel))")
     }
 
     private func locationAuthString(_ status: CLAuthorizationStatus) -> String {
         switch status {
-        case .notDetermined: return "未决定"
-        case .authorizedWhenInUse: return "使用时允许"
-        case .authorizedAlways: return "始终允许"
-        case .denied: return "已拒绝"
-        case .restricted: return "受限"
-        @unknown default: return "未知"
+        case .notDetermined: return String(localized: "Not Determined")
+        case .authorizedWhenInUse: return String(localized: "While Using")
+        case .authorizedAlways: return String(localized: "Always")
+        case .denied: return String(localized: "Denied")
+        case .restricted: return String(localized: "Restricted")
+        @unknown default: return String(localized: "Unknown")
         }
     }
 
     private func trackingAuthString(_ status: ATTrackingManager.AuthorizationStatus) -> String {
         switch status {
-        case .authorized: return "已授权"
-        case .denied: return "已拒绝"
-        case .notDetermined: return "未决定"
-        case .restricted: return "受限"
-        @unknown default: return "未知"
+        case .authorized: return String(localized: "Authorized")
+        case .denied: return String(localized: "Denied")
+        case .notDetermined: return String(localized: "Not Determined")
+        case .restricted: return String(localized: "Restricted")
+        @unknown default: return String(localized: "Unknown")
         }
     }
 
     private func mediaAuthString(_ status: AVAuthorizationStatus) -> String {
         switch status {
-        case .authorized: return "已授权"
-        case .denied: return "已拒绝"
-        case .notDetermined: return "未决定"
-        case .restricted: return "受限"
-        @unknown default: return "未知"
+        case .authorized: return String(localized: "Authorized")
+        case .denied: return String(localized: "Denied")
+        case .notDetermined: return String(localized: "Not Determined")
+        case .restricted: return String(localized: "Restricted")
+        @unknown default: return String(localized: "Unknown")
         }
     }
 
     private func nextDSTString() -> String {
         guard let next = TimeZone.current.nextDaylightSavingTimeTransition else {
-            return "无（该时区不实行夏令时）"
+            return String(localized: "None (this time zone has no DST)")
         }
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm"
@@ -1248,18 +1317,18 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
 
     private func audioRecordPermissionString(_ permission: AVAudioSession.RecordPermission) -> String {
         switch permission {
-        case .undetermined: return "未决定"
-        case .granted: return "已授权"
-        case .denied: return "已拒绝"
-        @unknown default: return "未知"
+        case .undetermined: return String(localized: "Not Determined")
+        case .granted: return String(localized: "Authorized")
+        case .denied: return String(localized: "Denied")
+        @unknown default: return String(localized: "Unknown")
         }
     }
 
     private func accuracyAuthString(_ accuracy: CLAccuracyAuthorization) -> String {
         switch accuracy {
-        case .fullAccuracy: return "精确位置"
-        case .reducedAccuracy: return "粗略位置"
-        @unknown default: return "未知"
+        case .fullAccuracy: return String(localized: "Full Accuracy")
+        case .reducedAccuracy: return String(localized: "Reduced Accuracy")
+        @unknown default: return String(localized: "Unknown")
         }
     }
 }

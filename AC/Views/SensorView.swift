@@ -12,40 +12,40 @@ struct SensorView: View {
 
     var body: some View {
         List {
-            Section("传感器可用性") {
-                InfoRow(label: "可用传感器", value: manager.sensorInfo.availabilityText)
+            Section("Sensor Availability") {
+                InfoRow(label: "Available Sensors", value: manager.sensorInfo.availabilityText)
             }
 
-            Section("运动数据") {
-                InfoRow(label: "加速度计 (g)", value: manager.sensorInfo.accelerometerText)
-                InfoRow(label: "陀螺仪 (°/s)", value: manager.sensorInfo.gyroText)
-                InfoRow(label: "磁力计 (µT)", value: manager.sensorInfo.magnetometerText)
-                InfoRow(label: "用户加速度", value: manager.sensorInfo.userAccelerationText)
-                InfoRow(label: "旋转速率", value: manager.sensorInfo.rotationRateText)
-                InfoRow(label: "姿态", value: manager.sensorInfo.attitudeText)
+            Section("Motion Data") {
+                InfoRow(label: "Accelerometer (g)", value: manager.sensorInfo.accelerometerText)
+                InfoRow(label: "Gyroscope (°/s)", value: manager.sensorInfo.gyroText)
+                InfoRow(label: "Magnetometer (µT)", value: manager.sensorInfo.magnetometerText)
+                InfoRow(label: "User Acceleration", value: manager.sensorInfo.userAccelerationText)
+                InfoRow(label: "Rotation Rate", value: manager.sensorInfo.rotationRateText)
+                InfoRow(label: "Attitude", value: manager.sensorInfo.attitudeText)
             }
 
-            Section("气压计") {
-                InfoRow(label: "相对海拔", value: manager.sensorInfo.relativeAltitudeText)
-                InfoRow(label: "气压", value: manager.sensorInfo.pressureText)
+            Section("Barometer") {
+                InfoRow(label: "Relative Altitude", value: manager.sensorInfo.relativeAltitudeText)
+                InfoRow(label: "Pressure", value: manager.sensorInfo.pressureText)
             }
 
-            Section("运动状态") {
-                InfoRow(label: "当前活动", value: manager.sensorInfo.motionActivityText)
+            Section("Motion Activity") {
+                InfoRow(label: "Current Activity", value: manager.sensorInfo.motionActivityText)
             }
 
-            Section("定位") {
-                InfoRow(label: "授权状态", value: manager.sensorInfo.locationAuthStatus)
-                InfoRow(label: "定位精度", value: manager.sensorInfo.accuracyAuthorizationText)
-                InfoRow(label: "纬度", value: manager.sensorInfo.latitudeText)
-                InfoRow(label: "经度", value: manager.sensorInfo.longitudeText)
-                InfoRow(label: "海拔", value: manager.sensorInfo.altitudeText)
-                InfoRow(label: "航向", value: manager.sensorInfo.courseText)
-                InfoRow(label: "速度", value: manager.sensorInfo.speedText)
-                InfoRow(label: "水平精度", value: manager.sensorInfo.horizontalAccuracyText)
+            Section("Location") {
+                InfoRow(label: "Authorization Status", value: manager.sensorInfo.locationAuthStatus)
+                InfoRow(label: "Accuracy", value: manager.sensorInfo.accuracyAuthorizationText)
+                InfoRow(label: "Latitude", value: manager.sensorInfo.latitudeText)
+                InfoRow(label: "Longitude", value: manager.sensorInfo.longitudeText)
+                InfoRow(label: "Altitude", value: manager.sensorInfo.altitudeText)
+                InfoRow(label: "Course", value: manager.sensorInfo.courseText)
+                InfoRow(label: "Speed", value: manager.sensorInfo.speedText)
+                InfoRow(label: "Horizontal Accuracy", value: manager.sensorInfo.horizontalAccuracyText)
             }
         }
-        .navigationTitle("传感器")
+        .navigationTitle("Sensors")
         .listStyle(InsetGroupedListStyle())
         .refreshable { manager.refreshAll() }
     }

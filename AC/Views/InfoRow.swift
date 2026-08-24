@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct InfoRow: View {
-    let label: String
+    let label: LocalizedStringKey
     let value: String
 
     var body: some View {
@@ -26,6 +26,6 @@ struct InfoRow: View {
 
 #Preview {
     List {
-        InfoRow(label: "测试", value: "示例值")
+        InfoRow(label: "Test", value: "Sample")
     }
 }

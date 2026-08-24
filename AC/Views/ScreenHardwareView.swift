@@ -12,41 +12,42 @@ struct ScreenHardwareView: View {
 
     var body: some View {
         List {
-            Section("屏幕") {
-                InfoRow(label: "逻辑尺寸 (pt)", value: manager.screenInfo.bounds)
-                InfoRow(label: "物理尺寸 (px)", value: manager.screenInfo.nativeBounds)
+            Section("Display") {
+                InfoRow(label: "Screen Size", value: manager.hardwareInfo.screenDiagonal.isEmpty ? "—" : manager.hardwareInfo.screenDiagonal)
+                InfoRow(label: "Logical Size (pt)", value: manager.screenInfo.bounds)
+                InfoRow(label: "Physical Size (px)", value: manager.screenInfo.nativeBounds)
                 InfoRow(label: "Scale", value: manager.screenInfo.scaleText)
                 InfoRow(label: "Native Scale", value: manager.screenInfo.nativeScaleText)
-                InfoRow(label: "像素尺寸", value: manager.screenInfo.pixelSize)
-                InfoRow(label: "可用模式", value: manager.screenInfo.availableModes.isEmpty ? "未知" : manager.screenInfo.availableModes)
-                InfoRow(label: "当前亮度", value: "\(Int(manager.currentBrightness * 100))%")
+                InfoRow(label: "Pixel Size", value: manager.screenInfo.pixelSize)
+                InfoRow(label: "Available Modes", value: manager.screenInfo.availableModes.isEmpty ? String(localized: "Unknown") : manager.screenInfo.availableModes)
+                InfoRow(label: "Brightness", value: "\(Int(manager.currentBrightness * 100))%")
             }
 
-            Section("内存") {
-                InfoRow(label: "物理内存", value: manager.memoryInfo.totalText)
-                InfoRow(label: "已用内存", value: manager.memoryInfo.usedText)
-                InfoRow(label: "空闲内存", value: manager.memoryInfo.freeText)
-                InfoRow(label: "活跃", value: manager.memoryInfo.activeText)
-                InfoRow(label: "非活跃", value: manager.memoryInfo.inactiveText)
-                InfoRow(label: "固定 (wired)", value: manager.memoryInfo.wiredText)
+            Section("Memory") {
+                InfoRow(label: "Physical Memory", value: manager.memoryInfo.totalText)
+                InfoRow(label: "Used Memory", value: manager.memoryInfo.usedText)
+                InfoRow(label: "Free Memory", value: manager.memoryInfo.freeText)
+                InfoRow(label: "Active Memory", value: manager.memoryInfo.activeText)
+                InfoRow(label: "Inactive Memory", value: manager.memoryInfo.inactiveText)
+                InfoRow(label: "Wired Memory", value: manager.memoryInfo.wiredText)
             }
 
-            Section("存储") {
-                InfoRow(label: "总容量", value: manager.storageInfo.totalText)
-                InfoRow(label: "可用容量", value: manager.storageInfo.availableText)
-                InfoRow(label: "可清空容量", value: manager.storageInfo.purgeableText)
+            Section("Storage") {
+                InfoRow(label: "Total Capacity", value: manager.storageInfo.totalText)
+                InfoRow(label: "Available", value: manager.storageInfo.availableText)
+                InfoRow(label: "Purgeable", value: manager.storageInfo.purgeableText)
             }
 
-            Section("网络") {
-                InfoRow(label: "连接类型", value: manager.currentConnectionType)
-                InfoRow(label: "本地 IP", value: manager.networkInfo.localIP)
-                InfoRow(label: "公网 IP", value: manager.externalIPAddress)
-                InfoRow(label: "DNS 服务器", value: manager.dnsServers)
-                InfoRow(label: "计费网络", value: manager.networkInfo.isExpensive ? "是" : "否")
-                InfoRow(label: "受限网络", value: manager.networkInfo.isConstrained ? "是" : "否")
+            Section("Network") {
+                InfoRow(label: "Connection Type", value: manager.currentConnectionType)
+                InfoRow(label: "Local IP", value: manager.networkInfo.localIP)
+                InfoRow(label: "Public IP", value: manager.externalIPAddress)
+                InfoRow(label: "DNS Servers", value: manager.dnsServers)
+                InfoRow(label: "Expensive Network", value: manager.networkInfo.isExpensive ? String(localized: "Yes") : String(localized: "No"))
+                InfoRow(label: "Constrained Network", value: manager.networkInfo.isConstrained ? String(localized: "Yes") : String(localized: "No"))
             }
 
-            Section("网络接口") {
+            Section("Network Interfaces") {
                 Text(manager.networkInterfaces)
                     .font(.footnote)
                     .monospaced()
@@ -55,59 +56,59 @@ struct ScreenHardwareView: View {
 
             Section("WiFi") {
                 InfoRow(label: "SSID", value: manager.networkInfo.ssid)
-                InfoRow(label: "BSSID", value: manager.networkInfo.bssid.isEmpty ? "未知" : manager.networkInfo.bssid)
+                InfoRow(label: "BSSID", value: manager.networkInfo.bssid.isEmpty ? String(localized: "Unknown") : manager.networkInfo.bssid)
             }
 
-            Section("界面环境") {
-                InfoRow(label: "深色模式", value: manager.environmentInfo.isDarkMode ? "开启" : "关闭")
-                InfoRow(label: "色彩范围", value: manager.environmentInfo.displayGamut)
-                InfoRow(label: "水平尺寸类", value: manager.environmentInfo.horizontalSizeClass)
-                InfoRow(label: "垂直尺寸类", value: manager.environmentInfo.verticalSizeClass)
-                InfoRow(label: "字体大小", value: manager.environmentInfo.contentSizeCategory)
-                InfoRow(label: "对比度", value: manager.environmentInfo.accessibilityContrast)
+            Section("Interface Environment") {
+                InfoRow(label: "Dark Mode", value: manager.environmentInfo.isDarkMode ? String(localized: "On") : String(localized: "Off"))
+                InfoRow(label: "Color Gamut", value: manager.environmentInfo.displayGamut)
+                InfoRow(label: "Horizontal Size Class", value: manager.environmentInfo.horizontalSizeClass)
+                InfoRow(label: "Vertical Size Class", value: manager.environmentInfo.verticalSizeClass)
+                InfoRow(label: "Font Size", value: manager.environmentInfo.contentSizeCategory)
+                InfoRow(label: "Contrast", value: manager.environmentInfo.accessibilityContrast)
             }
 
-            Section("音频环境") {
-                InfoRow(label: "输出设备", value: manager.environmentInfo.audioRouteText)
-                InfoRow(label: "输出音量", value: manager.environmentInfo.outputVolumeText)
-                InfoRow(label: "采样率", value: manager.environmentInfo.sampleRateText)
+            Section("Audio Environment") {
+                InfoRow(label: "Output Device", value: manager.environmentInfo.audioRouteText)
+                InfoRow(label: "Output Volume", value: manager.environmentInfo.outputVolumeText)
+                InfoRow(label: "Sample Rate", value: manager.environmentInfo.sampleRateText)
             }
 
-            Section("相机与麦克风") {
-                InfoRow(label: "相机数量", value: "\(manager.environmentInfo.cameraCount)（前 \(manager.environmentInfo.frontCameraCount) / 后 \(manager.environmentInfo.backCameraCount)）")
-                InfoRow(label: "闪光灯", value: manager.environmentInfo.hasFlash ? "支持" : "不支持")
-                InfoRow(label: "相机权限", value: manager.environmentInfo.cameraAuthStatus)
-                InfoRow(label: "麦克风数量", value: "\(manager.environmentInfo.microphoneCount)")
-                InfoRow(label: "输入声道", value: "\(manager.environmentInfo.inputChannelCount)")
-                InfoRow(label: "麦克风权限", value: manager.environmentInfo.microphoneAuthStatus)
-                InfoRow(label: "录音权限", value: manager.environmentInfo.audioRecordPermission)
+            Section("Camera & Microphone") {
+                InfoRow(label: "Cameras", value: String(localized: "\(manager.environmentInfo.cameraCount) (front \(manager.environmentInfo.frontCameraCount) / back \(manager.environmentInfo.backCameraCount))"))
+                InfoRow(label: "Flash", value: manager.environmentInfo.hasFlash ? String(localized: "Supported") : String(localized: "Not Supported"))
+                InfoRow(label: "Camera Permission", value: manager.environmentInfo.cameraAuthStatus)
+                InfoRow(label: "Microphones", value: "\(manager.environmentInfo.microphoneCount)")
+                InfoRow(label: "Input Channels", value: "\(manager.environmentInfo.inputChannelCount)")
+                InfoRow(label: "Microphone Permission", value: manager.environmentInfo.microphoneAuthStatus)
+                InfoRow(label: "Recording Permission", value: manager.environmentInfo.audioRecordPermission)
             }
 
-            Section("日历与系统设置") {
-                InfoRow(label: "历法", value: manager.environmentInfo.calendarIdentifier)
-                InfoRow(label: "每周起始日", value: weekdayText(manager.environmentInfo.firstWeekday))
-                InfoRow(label: "公制单位", value: manager.environmentInfo.usesMetricSystem ? "是" : "否")
-                InfoRow(label: "温度单位", value: manager.environmentInfo.temperatureUnit)
-                InfoRow(label: "时区缩写", value: manager.environmentInfo.timeZoneAbbreviation)
-                InfoRow(label: "已装键盘", value: manager.environmentInfo.keyboards)
+            Section("Calendar & System Settings") {
+                InfoRow(label: "Calendar", value: manager.environmentInfo.calendarIdentifier)
+                InfoRow(label: "First Weekday", value: weekdayText(manager.environmentInfo.firstWeekday))
+                InfoRow(label: "Metric Units", value: manager.environmentInfo.usesMetricSystem ? String(localized: "Yes") : String(localized: "No"))
+                InfoRow(label: "Temperature Unit", value: manager.environmentInfo.temperatureUnit)
+                InfoRow(label: "Time Zone Abbr", value: manager.environmentInfo.timeZoneAbbreviation)
+                InfoRow(label: "Keyboards", value: manager.environmentInfo.keyboards)
             }
 
-            Section("运营商") {
-                InfoRow(label: "运营商", value: manager.carrierInfo.carrierName)
+            Section("Carrier") {
+                InfoRow(label: "Carrier", value: manager.carrierInfo.carrierName)
                 InfoRow(label: "MCC", value: manager.carrierInfo.mobileCountryCode)
                 InfoRow(label: "MNC", value: manager.carrierInfo.mobileNetworkCode)
-                InfoRow(label: "国家码", value: manager.carrierInfo.isoCountryCode)
-                InfoRow(label: "网络制式", value: manager.carrierInfo.radioAccessTechnology)
+                InfoRow(label: "Country Code", value: manager.carrierInfo.isoCountryCode)
+                InfoRow(label: "Radio Technology", value: manager.carrierInfo.radioAccessTechnology)
             }
         }
-        .navigationTitle("屏幕与硬件")
+        .navigationTitle("Screen & Hardware")
         .listStyle(InsetGroupedListStyle())
         .refreshable { manager.refreshAll() }
     }
 
     private func weekdayText(_ weekday: Int) -> String {
-        guard (1...7).contains(weekday) else { return "未知" }
-        let names = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"]
+        guard (1...7).contains(weekday) else { return String(localized: "Unknown") }
+        let names = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
         return names[weekday - 1]
     }
 }

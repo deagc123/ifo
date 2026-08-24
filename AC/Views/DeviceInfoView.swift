@@ -12,36 +12,36 @@ struct DeviceInfoView: View {
 
     var body: some View {
         List {
-            Section("设备基础信息") {
-                InfoRow(label: "用户名称", value: manager.deviceInfo.name)
-                InfoRow(label: "型号", value: manager.deviceInfo.model)
-                InfoRow(label: "本地化型号", value: manager.deviceInfo.localizedModel)
-                InfoRow(label: "系统名称", value: manager.deviceInfo.systemName)
-                InfoRow(label: "系统版本", value: manager.deviceInfo.systemVersion)
-                InfoRow(label: "供应商 ID", value: manager.deviceInfo.identifierForVendor)
-                InfoRow(label: "界面样式", value: manager.deviceInfo.idiom)
-                InfoRow(label: "硬件型号标识", value: manager.deviceInfo.hardwareModel)
+            Section("Device Basics") {
+                InfoRow(label: "Name", value: manager.deviceInfo.name)
+                InfoRow(label: "Model", value: manager.deviceInfo.model)
+                InfoRow(label: "Localized Model", value: manager.deviceInfo.localizedModel)
+                InfoRow(label: "System Name", value: manager.deviceInfo.systemName)
+                InfoRow(label: "System Version", value: manager.deviceInfo.systemVersion)
+                InfoRow(label: "Vendor ID", value: manager.deviceInfo.identifierForVendor)
+                InfoRow(label: "Interface Idiom", value: manager.deviceInfo.idiom)
+                InfoRow(label: "Hardware Identifier", value: manager.deviceInfo.hardwareModel)
             }
 
-            Section("实时状态") {
-                InfoRow(label: "当前方向", value: manager.currentOrientation)
-                InfoRow(label: "电池电量", value: batteryText)
-                InfoRow(label: "电池状态", value: manager.batteryState)
-                InfoRow(label: "接近传感器", value: manager.proximityState ? "有物体靠近" : "无物体")
+            Section("Live Status") {
+                InfoRow(label: "Orientation", value: manager.currentOrientation)
+                InfoRow(label: "Battery Level", value: batteryText)
+                InfoRow(label: "Battery State", value: manager.batteryState)
+                InfoRow(label: "Proximity", value: manager.proximityState ? String(localized: "Object Near") : String(localized: "No Object"))
             }
 
-            Section("屏幕") {
-                InfoRow(label: "屏幕尺寸 (pt)", value: manager.deviceInfo.screenSize)
-                InfoRow(label: "屏幕 Scale", value: String(format: "%.1f", manager.deviceInfo.screenScale))
+            Section("Display") {
+                InfoRow(label: "Screen Size (pt)", value: manager.deviceInfo.screenSize)
+                InfoRow(label: "Screen Scale", value: String(format: "%.1f", manager.deviceInfo.screenScale))
             }
         }
-        .navigationTitle("设备信息")
+        .navigationTitle("Device Info")
         .listStyle(InsetGroupedListStyle())
         .refreshable { manager.refreshAll() }
     }
 
     private var batteryText: String {
-        manager.batteryLevel >= 0 ? "\(Int(manager.batteryLevel * 100))%" : "未知"
+        manager.batteryLevel >= 0 ? "\(Int(manager.batteryLevel * 100))%" : String(localized: "Unknown")
     }
 }
 

@@ -14,7 +14,7 @@ struct DeviceInfo {
     private(set) var localizedModel = ""
     private(set) var systemName = ""
     private(set) var systemVersion = ""
-    private(set) var identifierForVendor = "无"
+    private(set) var identifierForVendor = "None"
     private(set) var idiom = ""
     private(set) var hardwareModel = ""
     private(set) var screenSize = ""
@@ -54,25 +54,27 @@ struct SystemInfo {
     private(set) var jailbreakMarkers = ""
     private(set) var clockSkew: TimeInterval = 0
 
-    var uptimeText: String { "\(Int(uptime)) 秒" }
+    var uptimeText: String { String(localized: "\(Int(uptime)) sec") }
     var physicalMemoryText: String { DeviceManager.byteString(Int64(physicalMemory)) }
     var bootTimeText: String {
-        guard let bootTime = bootTime else { return "未知" }
+        guard let bootTime = bootTime else { return String(localized: "Unknown") }
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         return formatter.string(from: bootTime)
     }
     var languageText: String { preferredLanguages.joined(separator: ", ") }
-    var cpuFrequencyText: String { cpuFrequency >= 1_000_000 ? "\(cpuFrequency / 1_000_000) MHz" : "未知" }
-    var cpuUsageText: String { cpuUsage >= 0 ? String(format: "%.1f%%", cpuUsage) : "未知" }
-    var coreThreadText: String { "\(coreCount) 核 / \(threadCount) 线程" }
+    var cpuFrequencyText: String { cpuFrequency >= 1_000_000 ? "\(cpuFrequency / 1_000_000) MHz" : String(localized: "Unknown") }
+    var cpuUsageText: String { cpuUsage >= 0 ? String(format: "%.1f%%", cpuUsage) : String(localized: "Unknown") }
+    var coreThreadText: String { String(localized: "\(coreCount) cores / \(threadCount) threads") }
     var processResidentText: String { DeviceManager.byteString(Int64(processResidentMemory)) }
     var processVirtualText: String { DeviceManager.byteString(Int64(processVirtualMemory)) }
     var processAvailableText: String { DeviceManager.byteString(Int64(processAvailableMemory)) }
     var clockSkewText: String {
         let absSkew = abs(clockSkew)
-        if absSkew < 1 { return "正常（偏差 < 1 秒）" }
-        return clockSkew > 0 ? "快了 \(Int(absSkew)) 秒" : "慢了 \(Int(absSkew)) 秒"
+        if absSkew < 1 { return String(localized: "Normal (< 1 sec deviation)") }
+        return clockSkew > 0
+            ? String(localized: "Fast by \(Int(absSkew)) sec")
+            : String(localized: "Slow by \(Int(absSkew)) sec")
     }
 }
 
@@ -91,6 +93,7 @@ struct ScreenInfo {
 
 struct HardwareInfo {
     private(set) var deviceName = ""          // hw.machine → 机型名（如 iPhone 15 Pro）
+    private(set) var screenDiagonal = ""      // 屏幕对角线（英寸，按机型查表）
     private(set) var pageSize = 0             // hw.pagesize
     private(set) var physicalCPU = 0          // hw.physicalcpu
     private(set) var logicalCPU = 0           // hw.logicalcpu
@@ -114,12 +117,12 @@ struct HardwareInfo {
 
     var gpuWorkingSetText: String { DeviceManager.byteString(Int64(gpuWorkingSet)) }
     var cpuFreqText: String {
-        guard cpuFreqMin > 0, cpuFreqMax > 0 else { return "未知（Apple Silicon 不提供）" }
+        guard cpuFreqMin > 0, cpuFreqMax > 0 else { return String(localized: "Unknown (not exposed on Apple Silicon)") }
         return "\(cpuFreqMin / 1_000_000)-\(cpuFreqMax / 1_000_000) MHz"
     }
-    var refreshRateText: String { maxRefreshRate > 0 ? "\(maxRefreshRate) Hz" : "未知" }
-    var safeAreaText: String { "上 \(Int(safeAreaTop)) pt / 下 \(Int(safeAreaBottom)) pt" }
-    var detailText: String { cpuVendor.isEmpty ? "未知" : "\(cpuVendor) family:\(cpuFamily) model:\(cpuModel) stepping:\(cpuStepping)" }
+    var refreshRateText: String { maxRefreshRate > 0 ? "\(maxRefreshRate) Hz" : String(localized: "Unknown") }
+    var safeAreaText: String { String(localized: "Top \(Int(safeAreaTop)) pt / Bottom \(Int(safeAreaBottom)) pt") }
+    var detailText: String { cpuVendor.isEmpty ? String(localized: "Unknown") : "\(cpuVendor) family:\(cpuFamily) model:\(cpuModel) stepping:\(cpuStepping)" }
 }
 
 struct MemoryInfo {
@@ -150,7 +153,7 @@ struct StorageInfo {
 }
 
 struct NetworkInfo {
-    private(set) var connectionType = "未知"
+    private(set) var connectionType = "Unknown"
     private(set) var isExpensive = false
     private(set) var isConstrained = false
     private(set) var ssid = ""      // WiFi 名称
@@ -192,9 +195,9 @@ struct EnvironmentInfo {
     private(set) var launchArguments = ""
     private(set) var audioRecordPermission = ""
 
-    var audioRouteText: String { audioRoute.isEmpty ? "未知" : audioRoute }
+    var audioRouteText: String { audioRoute.isEmpty ? String(localized: "Unknown") : audioRoute }
     var outputVolumeText: String { String(format: "%.0f%%", outputVolume * 100) }
-    var sampleRateText: String { audioSampleRate > 0 ? "\(Int(audioSampleRate)) Hz" : "未知" }
+    var sampleRateText: String { audioSampleRate > 0 ? "\(Int(audioSampleRate)) Hz" : String(localized: "Unknown") }
 }
 
 struct SensorInfo {
@@ -223,13 +226,13 @@ struct SensorInfo {
 
     var availabilityText: String {
         let available: [String] = [
-            isAccelerometerAvailable ? "加速度计" : nil,
-            isGyroAvailable ? "陀螺仪" : nil,
-            isMagnetometerAvailable ? "磁力计" : nil,
-            isDeviceMotionAvailable ? "设备运动" : nil,
-            isBarometerAvailable ? "气压计" : nil,
+            isAccelerometerAvailable ? String(localized: "Accelerometer") : nil,
+            isGyroAvailable ? String(localized: "Gyroscope") : nil,
+            isMagnetometerAvailable ? String(localized: "Magnetometer") : nil,
+            isDeviceMotionAvailable ? String(localized: "Device Motion") : nil,
+            isBarometerAvailable ? String(localized: "Barometer") : nil,
         ].compactMap { $0 }
-        return available.isEmpty ? "无可用传感器" : available.joined(separator: " / ")
+        return available.isEmpty ? String(localized: "No sensors available") : available.joined(separator: " / ")
     }
 }
 

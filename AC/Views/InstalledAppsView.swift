@@ -12,13 +12,13 @@ struct InstalledAppsView: View {
 
     var body: some View {
         List {
-            Section("说明") {
-                Text("仅能探测 Info.plist 中声明的 scheme（上限 50 个），点击已安装项可唤起对应 App。")
+            Section("Info") {
+                Text("Only apps with schemes declared in Info.plist can be detected (max 50); tap an installed app to open it.")
                     .font(.footnote)
                     .foregroundColor(.secondary)
             }
 
-            Section("常用 App") {
+            Section("Common Apps") {
                 ForEach(manager.installedApps) { app in
                     HStack {
                         Image(systemName: app.iconName)
@@ -31,10 +31,10 @@ struct InstalledAppsView: View {
                                 .foregroundColor(.secondary)
                         }
                         Spacer()
-                        Text(app.isInstalled ? "已安装" : "未安装")
+                        Text(app.isInstalled ? String(localized: "Installed") : String(localized: "Not Installed"))
                             .font(.footnote)
                             .foregroundColor(app.isInstalled ? .green : .gray)
-                        Button("打开") {
+                        Button(String(localized: "Open")) {
                             manager.openApp(app)
                         }
                         .disabled(!app.isInstalled)
@@ -43,7 +43,7 @@ struct InstalledAppsView: View {
                 }
             }
         }
-        .navigationTitle("已安装 App")
+        .navigationTitle("Installed Apps")
         .listStyle(InsetGroupedListStyle())
         .refreshable { manager.refreshAll() }
     }
