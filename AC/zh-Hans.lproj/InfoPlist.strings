@@ -1,2 +1,3 @@
 "NSLocationWhenInUseUsageDescription" = "用于获取当前连接 WiFi 的名称（SSID）与 BSSID";
 "NSMotionUsageDescription" = "用于识别运动状态（步行/跑步/驾车）并采集传感器数据";
+"NSPhotoLibraryAddUsageDescription" = "用于将设备信息分享卡片保存到相册";

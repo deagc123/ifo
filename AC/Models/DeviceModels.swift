@@ -64,7 +64,7 @@ struct SystemInfo {
     }
     var languageText: String { preferredLanguages.joined(separator: ", ") }
     var cpuFrequencyText: String { cpuFrequency >= 1_000_000 ? "\(cpuFrequency / 1_000_000) MHz" : String(localized: "Unknown") }
-    var cpuUsageText: String { cpuUsage >= 0 ? String(format: "%.1f%%", cpuUsage) : String(localized: "Unknown") }
+    var cpuUsageText: String { cpuUsage >= 0 ? "≈ " + String(format: "%.1f%%", cpuUsage) : String(localized: "Unknown") }
     var coreThreadText: String { String(localized: "\(coreCount) cores / \(threadCount) threads") }
     var processResidentText: String { DeviceManager.byteString(Int64(processResidentMemory)) }
     var processVirtualText: String { DeviceManager.byteString(Int64(processVirtualMemory)) }
@@ -113,7 +113,6 @@ struct HardwareInfo {
     private(set) var isMultitaskingSupported = false
     private(set) var biometricType = ""       // Face ID / Touch ID / Optic ID / 无
     private(set) var hasPasscode = false
-    private(set) var nfcSupported = false
 
     var gpuWorkingSetText: String { DeviceManager.byteString(Int64(gpuWorkingSet)) }
     var cpuFreqText: String {
@@ -135,7 +134,7 @@ struct MemoryInfo {
     var used: UInt64 { total - free }
 
     var totalText: String { DeviceManager.byteString(Int64(total)) }
-    var usedText: String { DeviceManager.byteString(Int64(used)) }
+    var usedText: String { "≈ " + DeviceManager.byteString(Int64(used)) }
     var freeText: String { DeviceManager.byteString(Int64(free)) }
     var activeText: String { DeviceManager.byteString(Int64(active)) }
     var inactiveText: String { DeviceManager.byteString(Int64(inactive)) }
@@ -261,19 +260,3 @@ struct BundleInfo {
     private(set) var backgroundTimeRemaining: TimeInterval = 0
 }
 
-struct InstalledApp: Identifiable {
-    let id = UUID()
-    private(set) var name: String
-    private(set) var scheme: String
-    private(set) var isInstalled: Bool
-    private(set) var iconName: String
-
-    init(name: String, scheme: String, isInstalled: Bool = false, iconName: String) {
-        self.name = name
-        self.scheme = scheme
-        self.isInstalled = isInstalled
-        self.iconName = iconName
-    }
-
-    var urlString: String { "\(scheme)://" }
-}

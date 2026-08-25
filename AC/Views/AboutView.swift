@@ -22,6 +22,7 @@ struct AboutView: View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 100, height: 100)
+                        .accessibilityHidden(true)
                     Text("ifo")
                         .font(.system(size: 30, weight: .bold, design: .rounded))
                     HStack(spacing: 4) {

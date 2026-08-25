@@ -21,6 +21,7 @@ struct InfoRow: View {
                 .multilineTextAlignment(.trailing)
         }
         .padding(.vertical, 4)
+        .accessibilityElement(children: .combine)
     }
 }
 

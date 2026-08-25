@@ -2,22 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>weixin</string>
-		<string>mqq</string>
-		<string>alipay</string>
-		<string>taobao</string>
-		<string>openapp.jdmobile</string>
-		<string>snssdk1128</string>
-		<string>sinaweibo</string>
-		<string>bilibili</string>
-		<string>imeituan</string>
-		<string>iosamap</string>
-	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Used to show your device's current location and to obtain the connected WiFi name (SSID) and BSSID.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>Used to detect motion activity (walking/running/driving) and collect sensor data.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Allows saving the device info share card to your photo library.</string>
 </dict>
 </plist>

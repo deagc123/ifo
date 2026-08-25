@@ -18,6 +18,7 @@ struct SplashView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 140, height: 140)
+                    .accessibilityHidden(true)
                 Text("ifo")
                     .font(.system(size: 40, weight: .bold, design: .rounded))
                     .foregroundColor(.accentColor)

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct DeviceInfoView: View {
     @ObservedObject private var manager = DeviceManager.shared
+    @State private var showShare = false
 
     var body: some View {
         List {
@@ -36,8 +37,22 @@ struct DeviceInfoView: View {
             }
         }
         .navigationTitle("Device Info")
+        .navigationBarTitleDisplayMode(.inline)
         .listStyle(InsetGroupedListStyle())
         .refreshable { manager.refreshAll() }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showShare = true
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
+                }
+                .accessibilityLabel(String(localized: "Share Device Info"))
+            }
+        }
+        .fullScreenCover(isPresented: $showShare) {
+            DeviceShareView()
+        }
     }
 
     private var batteryText: String {

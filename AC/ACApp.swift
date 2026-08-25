@@ -19,7 +19,7 @@ struct ACApp: App {
                         .transition(.opacity)
                 } else {
                     TabView {
-                        DeviceInfoView()
+                        NavigationStack { DeviceInfoView() }
                             .tabItem { Label("Device", systemImage: "iphone") }
                         SystemInfoView()
                             .tabItem { Label("System", systemImage: "gearshape.2") }
@@ -27,7 +27,7 @@ struct ACApp: App {
                             .tabItem { Label("Screen & Hardware", systemImage: "display") }
                         SensorView()
                             .tabItem { Label("Sensors", systemImage: "waveform.path.ecg") }
-                        NavigationStack { MoreView() }
+                        NavigationStack { AboutView() }
                             .tabItem { Label("More", systemImage: "ellipsis.circle") }
                     }
                     .transition(.opacity)

@@ -16,7 +16,6 @@ import CoreMotion
 import AVFoundation
 import Metal
 import LocalAuthentication
-import CoreNFC
 import UserNotifications
 import Darwin
 import MachO
@@ -36,9 +35,6 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var bundleInfo = BundleInfo()
     @Published var environmentInfo = EnvironmentInfo()
     @Published var sensorInfo = SensorInfo()
-
-    // MARK: - 已安装 App
-    @Published var installedApps: [InstalledApp] = []
 
     // MARK: - 动态信息（单独 @Published，不走 struct）
     @Published var currentOrientation = ""
@@ -76,20 +72,6 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     private var lastActivity: CMMotionActivity?
     private var lastBarometer: CMAltitudeData?
 
-    // MARK: - scheme 目录（需与 Info.plist 的 LSApplicationQueriesSchemes 一致）
-    private static let schemeCatalog: [(name: String, scheme: String, icon: String)] = [
-        (String(localized: "WeChat"), "weixin", "message.fill"),
-        ("QQ", "mqq", "bubble.left.and.bubble.right.fill"),
-        (String(localized: "Alipay"), "alipay", "creditcard.fill"),
-        (String(localized: "Taobao"), "taobao", "bag.fill"),
-        (String(localized: "JD.com"), "openapp.jdmobile", "cart.fill"),
-        (String(localized: "Douyin"), "snssdk1128", "play.rectangle.fill"),
-        (String(localized: "Weibo"), "sinaweibo", "at"),
-        (String(localized: "Bilibili"), "bilibili", "tv.fill"),
-        (String(localized: "Meituan"), "imeituan", "fork.knife"),
-        (String(localized: "AMap"), "iosamap", "map.fill"),
-    ]
-
     override init() {
         super.init()
         locationManager.delegate = self
@@ -116,7 +98,6 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         refreshBundleInfo()
         refreshEnvironmentInfo()
         refreshNetworkDetails()
-        refreshInstalledApps()
         refreshSensors()
         refreshNotificationSettings()
         lastUpdated = Date()
@@ -235,8 +216,7 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             safeAreaBottom: safeBottom,
             isMultitaskingSupported: device.isMultitaskingSupported,
             biometricType: Self.biometricString(),
-            hasPasscode: Self.passcodeSet(),
-            nfcSupported: Self.nfcAvailable()
+            hasPasscode: Self.passcodeSet()
         )
     }
 
@@ -511,30 +491,6 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             applicationState: appStateString(UIApplication.shared.applicationState),
             backgroundTimeRemaining: UIApplication.shared.backgroundTimeRemaining
         )
-    }
-
-    // MARK: - 已安装 App（canOpenURL 探测）
-    private func refreshInstalledApps() {
-        installedApps = Self.schemeCatalog.map { item in
-            let installed = URL(string: "\(item.scheme)://")
-                .map { UIApplication.shared.canOpenURL($0) } ?? false
-            return InstalledApp(
-                name: item.name,
-                scheme: item.scheme,
-                isInstalled: installed,
-                iconName: item.icon
-            )
-        }
-    }
-
-    // MARK: - 唤起 App
-    func openApp(_ app: InstalledApp) {
-        guard let url = URL(string: app.urlString) else { return }
-        UIApplication.shared.open(url, options: [:]) { success in
-            if !success {
-                print("Failed to open: \(app.scheme)")
-            }
-        }
     }
 
     // MARK: - 定位授权（SSID 获取的前置条件）
@@ -1054,15 +1010,6 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     // 设备是否设置了密码/生物识别（无需弹窗，仅查询）
     static func passcodeSet() -> Bool {
         LAContext().canEvaluatePolicy(.deviceOwnerAuthentication, error: nil)
-    }
-
-    // NFC 读取能力
-    static func nfcAvailable() -> Bool {
-        #if targetEnvironment(simulator)
-        return false
-        #else
-        return NFCNDEFReaderSession.readingAvailable
-        #endif
     }
 
     // 通知授权状态（异步）

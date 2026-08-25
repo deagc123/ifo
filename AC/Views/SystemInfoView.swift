@@ -53,7 +53,6 @@ struct SystemInfoView: View {
                 InfoRow(label: "Multitasking", value: manager.hardwareInfo.isMultitaskingSupported ? String(localized: "Supported") : String(localized: "Not Supported"))
                 InfoRow(label: "Biometrics", value: manager.hardwareInfo.biometricType)
                 InfoRow(label: "Passcode Set", value: manager.hardwareInfo.hasPasscode ? String(localized: "Yes") : String(localized: "No"))
-                InfoRow(label: "NFC Reader", value: manager.hardwareInfo.nfcSupported ? String(localized: "Supported") : String(localized: "Not Supported"))
             }
 
             Section("Locale & Time Zone") {

@@ -1,2 +1,3 @@
 "NSLocationWhenInUseUsageDescription" = "Used to show your device's current location and to obtain the connected WiFi name (SSID) and BSSID.";
 "NSMotionUsageDescription" = "Used to detect motion activity (walking/running/driving) and collect sensor data.";
+"NSPhotoLibraryAddUsageDescription" = "Allows saving the device info share card to your photo library.";
