@@ -19,6 +19,14 @@ struct SystemInfoView: View {
                 InfoRow(label: "Build Number", value: manager.systemInfo.osProductBuild.isEmpty ? String(localized: "Unknown") : manager.systemInfo.osProductBuild)
                 InfoRow(label: "Physical Memory", value: manager.systemInfo.physicalMemoryText)
                 InfoRow(label: "CPU Usage", value: manager.systemInfo.cpuUsageText)
+                RealtimeChartCard(
+                    title: String(localized: "CPU Usage"),
+                    seriesCount: 1,
+                    colors: [.accentColor],
+                    interval: 0.5
+                ) {
+                    [min(max(DeviceManager.cpuUsage() / 100, 0), 1)]
+                }
                 InfoRow(label: "CPU Frequency", value: manager.systemInfo.cpuFrequencyText)
                 InfoRow(label: "CPU Cores", value: String(localized: "\(manager.systemInfo.processorCount) cores (\(manager.systemInfo.activeProcessorCount) active)"))
                 InfoRow(label: "Cores / Threads", value: manager.systemInfo.coreThreadText)

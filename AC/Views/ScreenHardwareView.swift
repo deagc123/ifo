@@ -30,6 +30,14 @@ struct ScreenHardwareView: View {
                 InfoRow(label: "Active Memory", value: manager.memoryInfo.activeText)
                 InfoRow(label: "Inactive Memory", value: manager.memoryInfo.inactiveText)
                 InfoRow(label: "Wired Memory", value: manager.memoryInfo.wiredText)
+                RealtimeChartCard(
+                    title: String(localized: "Used Memory"),
+                    seriesCount: 1,
+                    colors: [.accentColor],
+                    interval: 1.0
+                ) {
+                    [manager.currentMemoryUsageRatio()]
+                }
             }
 
             Section("Storage") {

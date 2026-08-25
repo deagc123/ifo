@@ -1021,6 +1021,33 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         }
     }
 
+    // MARK: - 实时采样（供图表使用）
+
+    func accelerometerVector() -> (x: Double, y: Double, z: Double)? {
+        guard let data = motionManager.accelerometerData else { return nil }
+        return (data.acceleration.x, data.acceleration.y, data.acceleration.z)
+    }
+
+    func gyroVector() -> (x: Double, y: Double, z: Double)? {
+        guard let data = motionManager.gyroData else { return nil }
+        return (data.rotationRate.x, data.rotationRate.y, data.rotationRate.z)
+    }
+
+    func magnetometerVector() -> (x: Double, y: Double, z: Double)? {
+        guard let data = motionManager.magnetometerData else { return nil }
+        return (data.magneticField.x, data.magneticField.y, data.magneticField.z)
+    }
+
+    func currentPressure() -> Double? {
+        lastBarometer?.pressure.doubleValue
+    }
+
+    func currentMemoryUsageRatio() -> Double {
+        refreshMemoryInfo()
+        let total = memoryInfo.total
+        return total > 0 ? Double(memoryInfo.used) / Double(total) : 0
+    }
+
     static func notificationStatusString(_ status: UNAuthorizationStatus) -> String {
         switch status {
         case .notDetermined: return String(localized: "Not Determined")
