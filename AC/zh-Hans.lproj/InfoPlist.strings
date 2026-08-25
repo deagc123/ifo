@@ -1,3 +1,2 @@
 "NSLocationWhenInUseUsageDescription" = "用于获取当前连接 WiFi 的名称（SSID）与 BSSID";
 "NSMotionUsageDescription" = "用于识别运动状态（步行/跑步/驾车）并采集传感器数据";
-"NSUserTrackingUsageDescription" = "用于获取广告标识符（IDFA）以演示设备信息采集";

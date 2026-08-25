@@ -14,8 +14,6 @@ import CoreTelephony
 import CoreLocation
 import CoreMotion
 import AVFoundation
-import AdSupport
-import AppTrackingTransparency
 import Metal
 import LocalAuthentication
 import CoreNFC
@@ -57,11 +55,7 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var dnsServers = String(localized: "Unknown")
     @Published var externalIPAddress = String(localized: "Unknown")
 
-    // MARK: - 广告标识与推送（异步）
-    @Published var idfa = String(localized: "Unknown")
-    @Published var idfaAuthStatus = String(localized: "Not Requested")
-    @Published var pushToken = String(localized: "Unknown")
-    @Published var pushStatus = String(localized: "Not Registered")
+    // MARK: - 通知授权（查询状态，非推送注册）
     @Published var notificationAuthStatus = String(localized: "Unknown")
 
     // MARK: - 全局状态
@@ -102,7 +96,6 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         requestLocationAuthorization()
         startMonitoring()
         refreshAll()
-        requestIDFA()
     }
 
     deinit {
@@ -609,8 +602,6 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         startBarometerUpdates()
         startMotionActivityUpdates()
         startLocationUpdates()
-        UIApplication.shared.registerForRemoteNotifications()
-
         updateDynamicInfo()
         refreshSensors()
     }
@@ -730,35 +721,7 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         )
     }
 
-    // MARK: - 广告标识（IDFA）
-    private func requestIDFA() {
-        guard ATTrackingManager.trackingAuthorizationStatus == .notDetermined else {
-            refreshIDFA()
-            return
-        }
-        ATTrackingManager.requestTrackingAuthorization { [weak self] _ in
-            DispatchQueue.main.async {
-                self?.refreshIDFA()
-            }
-        }
-    }
-
-    private func refreshIDFA() {
-        idfa = ASIdentifierManager.shared().advertisingIdentifier.uuidString
-        idfaAuthStatus = trackingAuthString(ATTrackingManager.trackingAuthorizationStatus)
-    }
-
-    // MARK: - 推送令牌（由 AppDelegate 回调）
-    func updatePushToken(_ token: Data) {
-        pushToken = token.map { String(format: "%02x", $0) }.joined()
-        pushStatus = String(localized: "Registered")
-    }
-
-    func updatePushError(_ error: Error) {
-        pushStatus = String(localized: "Registration failed (\(error.localizedDescription))")
-        pushToken = "None"
-    }
-
+    // MARK: - 动态信息监听
     private func updateDynamicInfo() {
         currentOrientation = orientationString(device.orientation)
         batteryLevel = device.batteryLevel
@@ -1281,16 +1244,6 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         case .authorizedWhenInUse: return String(localized: "While Using")
         case .authorizedAlways: return String(localized: "Always")
         case .denied: return String(localized: "Denied")
-        case .restricted: return String(localized: "Restricted")
-        @unknown default: return String(localized: "Unknown")
-        }
-    }
-
-    private func trackingAuthString(_ status: ATTrackingManager.AuthorizationStatus) -> String {
-        switch status {
-        case .authorized: return String(localized: "Authorized")
-        case .denied: return String(localized: "Denied")
-        case .notDetermined: return String(localized: "Not Determined")
         case .restricted: return String(localized: "Restricted")
         @unknown default: return String(localized: "Unknown")
         }

@@ -1,3 +1,2 @@
 "NSLocationWhenInUseUsageDescription" = "Used to show your device's current location and to obtain the connected WiFi name (SSID) and BSSID.";
 "NSMotionUsageDescription" = "Used to detect motion activity (walking/running/driving) and collect sensor data.";
-"NSUserTrackingUsageDescription" = "Used to read the advertising identifier (IDFA) to demonstrate device information collection.";

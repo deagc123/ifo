@@ -6,22 +6,9 @@
 //
 
 import SwiftUI
-import UIKit
-
-class AppDelegate: NSObject, UIApplicationDelegate {
-    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        DeviceManager.shared.updatePushToken(deviceToken)
-    }
-
-    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        DeviceManager.shared.updatePushError(error)
-    }
-}
 
 @main
 struct ACApp: App {
-    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
-
     @State private var showSplash = true
 
     var body: some Scene {

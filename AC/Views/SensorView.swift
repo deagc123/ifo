@@ -34,7 +34,7 @@ struct SensorView: View {
                 InfoRow(label: "Current Activity", value: manager.sensorInfo.motionActivityText)
             }
 
-            Section("Location") {
+            Section {
                 InfoRow(label: "Authorization Status", value: manager.sensorInfo.locationAuthStatus)
                 InfoRow(label: "Accuracy", value: manager.sensorInfo.accuracyAuthorizationText)
                 InfoRow(label: "Latitude", value: manager.sensorInfo.latitudeText)
@@ -43,6 +43,10 @@ struct SensorView: View {
                 InfoRow(label: "Course", value: manager.sensorInfo.courseText)
                 InfoRow(label: "Speed", value: manager.sensorInfo.speedText)
                 InfoRow(label: "Horizontal Accuracy", value: manager.sensorInfo.horizontalAccuracyText)
+            } header: {
+                Text(String(localized: "Location"))
+            } footer: {
+                Text("Location permission is optional — all core features work without it; only location and WiFi data are unavailable.")
             }
         }
         .navigationTitle("Sensors")

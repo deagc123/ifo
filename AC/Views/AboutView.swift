@@ -6,9 +6,13 @@
 //
 
 import SwiftUI
+import SafariServices
 
 struct AboutView: View {
     @ObservedObject private var manager = DeviceManager.shared
+    @State private var showPrivacyPolicy = false
+
+    private let privacyPolicyURL = URL(string: "https://example.com/privacy")
 
     var body: some View {
         List {
@@ -52,21 +56,27 @@ struct AboutView: View {
                 InfoRow(label: "Keep Screen Awake", value: manager.environmentInfo.isIdleTimerDisabled ? String(localized: "Yes") : String(localized: "No"))
             }
 
-            Section(String(localized: "Advertising & Push")) {
-                InfoRow(label: "IDFA", value: manager.idfa)
-                InfoRow(label: "Tracking Authorization", value: manager.idfaAuthStatus)
-                InfoRow(label: "Push Status", value: manager.pushStatus)
-                InfoRow(label: "DeviceToken", value: manager.pushToken)
-            }
-
             Section(String(localized: "Sandbox Paths")) {
                 InfoRow(label: "Home", value: manager.bundleInfo.homeDirectory)
                 InfoRow(label: "Documents", value: manager.bundleInfo.documentsDirectory)
                 InfoRow(label: "Caches", value: manager.bundleInfo.cachesDirectory)
                 InfoRow(label: "Tmp", value: manager.bundleInfo.tmpDirectory)
             }
+
+            Section {
+                Button {
+                    showPrivacyPolicy = true
+                } label: {
+                    Label(String(localized: "Privacy Policy"), systemImage: "hand.raised.fill")
+                }
+            }
         }
         .navigationTitle(String(localized: "About"))
+        .sheet(isPresented: $showPrivacyPolicy) {
+            if let privacyPolicyURL {
+                SafariView(url: privacyPolicyURL)
+            }
+        }
     }
 
     private var versionText: String {
@@ -82,6 +92,16 @@ struct AboutView: View {
         }
         return String(localized: "\(Int(remaining)) sec")
     }
+}
+
+struct SafariView: UIViewControllerRepresentable {
+    let url: URL
+
+    func makeUIViewController(context: Context) -> SFSafariViewController {
+        SFSafariViewController(url: url)
+    }
+
+    func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {}
 }
 
 #Preview {
