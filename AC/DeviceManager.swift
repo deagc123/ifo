@@ -151,8 +151,14 @@ class DeviceManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             isDaylightSaving: TimeZone.current.isDaylightSavingTime(),
             hwModel: DeviceManager.sysctlString("hw.model"),
             cpuFrequency: DeviceManager.sysctlUInt64("hw.cpufrequency"),
-            coreCount: Int(DeviceManager.sysctlInt32("machdep.cpu.core_count")),
-            threadCount: Int(DeviceManager.sysctlInt32("machdep.cpu.thread_count")),
+            coreCount: {
+                let cores = Int(DeviceManager.sysctlInt32("hw.physicalcpu"))
+                return cores > 0 ? cores : p.processorCount
+            }(),
+            threadCount: {
+                let threads = Int(DeviceManager.sysctlInt32("hw.logicalcpu"))
+                return threads > 0 ? threads : p.activeProcessorCount
+            }(),
             osProductVersion: DeviceManager.sysctlString("kern.osproductversion"),
             osProductBuild: DeviceManager.sysctlString("kern.osproductbuild"),
             isSimulator: Self.isSimulator,
