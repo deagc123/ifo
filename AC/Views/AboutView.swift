@@ -12,7 +12,7 @@ struct AboutView: View {
     @ObservedObject private var manager = DeviceManager.shared
     @State private var showPrivacyPolicy = false
 
-    private let privacyPolicyURL = URL(string: "https://example.com/privacy")
+    private let privacyPolicyURL = URL(string: "https://deagc123.github.io/ifo/privacy.html")
 
     var body: some View {
         List {
