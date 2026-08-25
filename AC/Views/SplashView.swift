@@ -14,12 +14,13 @@ struct SplashView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 16) {
+                Image("Logo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 140, height: 140)
                 Text("ifo")
-                    .font(.system(size: 72, weight: .bold, design: .rounded))
+                    .font(.system(size: 40, weight: .bold, design: .rounded))
                     .foregroundColor(.accentColor)
-                Text("Device Info Tool")
-                    .font(.callout)
-                    .foregroundColor(.secondary)
             }
         }
     }

@@ -40,10 +40,8 @@ struct ACApp: App {
                             .tabItem { Label("Screen & Hardware", systemImage: "display") }
                         SensorView()
                             .tabItem { Label("Sensors", systemImage: "waveform.path.ecg") }
-                        BundleInfoView()
-                            .tabItem { Label("Current App", systemImage: "app.badge") }
-                        InstalledAppsView()
-                            .tabItem { Label("Installed", systemImage: "square.grid.2x2") }
+                        NavigationStack { MoreView() }
+                            .tabItem { Label("More", systemImage: "ellipsis.circle") }
                     }
                     .transition(.opacity)
                 }
